@@ -1,37 +1,10 @@
-#include <sys/socket.h>
-#include <stdio.h>
-#include <netinet/in.h>
-#include <netinet/in.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <sys/ioctl.h>
-#include <sys/poll.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <iostream>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <vector>
-#include <iterator>
-#include <string>
-#include <string>
-#include <fstream>
-#include <unistd.h>
-#include <fcntl.h>
 
-#define	MAX_FD 200
-#define PORT 8080
+#include "server.hpp"
+
 int main(void)
 {
 	std::ofstream file;
-	typedef	std::vector<struct pollfd > _vector_fd;
 	int									server_fd = -1;
-	int									new_client = -1;
 	int									rcv;
 	int									on = 1;
 	int									rc = 1;
@@ -42,7 +15,7 @@ int main(void)
 	struct	addrinfo					hints, *ai, *point;
 	struct	sockaddr_storage			remoteaddr;
 	socklen_t 							addrlen;
-	char								buf[1024];
+	char								buf[BUFFER_SIZE + 1];
 	_vector_fd	fd_s;
 	fd_s.resize(1);
 	bzero(&hints, sizeof(hints));
@@ -101,7 +74,7 @@ int main(void)
 			break ;
 		}
 		current_size = nfds;
-		for(int i = 0; i < fd_s.size(); i++)
+		for(size_t i = 0; i < fd_s.size(); i++)
 		{
 			// if (fd_s[i].revents == 0)
 			// 	continue;
@@ -124,7 +97,7 @@ int main(void)
 			}
 			else
 			{
-				int bytes = recv(fd_s[i].fd, buf, 1024, 0);
+				int bytes = recv(fd_s[i].fd, buf, BUFFER_SIZE, 0);
 				buf[bytes] = '\0';
 				std::string message(buf);
 				int sender_fd = fd_s[i].fd;
@@ -144,10 +117,8 @@ int main(void)
 				}
 				else
 					{
-						write(terminal_fd, message.c_str(), message.length());
-
-	
-							
+						//this part gonna send back the response to a client
+						write(terminal_fd, message.c_str(), message.length());	
 					}
 				}
 			}
